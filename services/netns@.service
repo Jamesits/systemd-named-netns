@@ -1,11 +1,12 @@
 [Unit]
 Description=Named network namespace %I
 Documentation=https://github.com/systemd/systemd/issues/2741#issuecomment-336736214
+
+# Remove the netns if no services depending on it is running
 #StopWhenUnneeded=true
 
 # Use custom DNS config in netns
 #BindPaths=/etc/netns/<foobar>/resolv.conf:/etc/resolv.conf
-
 
 [Service]
 Type=oneshot
@@ -30,21 +31,7 @@ ExecStart=/bin/umount /var/run/netns/%I
 # Re-use the same name for the network namespace that systemd put us in
 ExecStart=/bin/mount --bind /proc/self/ns/net /var/run/netns/%I
 
-# Add a virtual ethernet interface
-# (we need to create it outside the netns)
-ExecStartPost=+/bin/ip link add ve-%I0 type veth peer name ve-%I1
-
-# Put one end of the veth into bridge
-# (assume br0 is the network you want the netns to connect to)
-ExecStartPost=-+/bin/ip link set ve-%I0 master br0
-
-# Put the another end to netns
-ExecStartPost=+/bin/ip link set ve-%I1 netns %I
-
 ## Stop
-
-# Remove the veth pair
-ExecStop=+/bin/ip link delete ve-%I0
 
 # Clean up netns
 ExecStop=/bin/ip netns delete %I

@@ -1,0 +1,18 @@
+[Unit]
+Description=veth interface inside namespace %I
+Requires=netns@%I.service
+After=netns@%I.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=DEVNAME_OUTSIDE=ve-%I0
+Environment=DEVNAME_INSIDE=ve-%I1
+EnvironmentFile=/etc/default/netns-bridge
+EnvironmentFile=/etc/default/netns-bridge-%I
+
+ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
+ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
+ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} down
+
+ExecStop=/bin/ip link delete ${DEVNAME_OUTSIDE}

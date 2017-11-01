@@ -1,0 +1,5 @@
+# This is the default config for netns-bridge
+# You can override config per netns by creating a file named
+# netns-bridge-<your_netns_name>.
+
+BRIDGE=br0

@@ -1,0 +1,24 @@
+[Unit]
+Description=veth interface inside namespace %I
+Requires=netns@%I.service
+After=netns@%I.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=DEVNAME_OUTSIDE=ve-%I0
+Environment=DEVNAME_INSIDE=ve-%I1
+EnvironmentFile=/etc/default/netns-nat
+EnvironmentFile=/etc/default/netns-nat-%I
+
+ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
+ExecStart=/bin/ip link set ${DEVNAME_INSIDE} netns %I
+ExecStart=/bin/ip addr add ${GATEWAY_IP}/${CIDR} dev ${DEVNAME_OUTSIDE}
+ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} up
+ExecStart=/bin/ip netns exec %I /bin/ip addr add ${CLIENT_IP}/${CIDR} dev ${DEVNAME_INSIDE}
+ExecStart=/bin/ip netns exec %I /bin/ip link set ${DEVNAME_INSIDE} up
+ExecStart=/bin/ip netns exec %I /bin/ip route add default via ${GATEWAY_IP}
+ExecStart=/bin/iptables -t nat -A POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
+
+ExecStop=/bin/iptables -t nat -D POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
+ExecStop=/bin/ip link delete ${DEVNAME_OUTSIDE}
