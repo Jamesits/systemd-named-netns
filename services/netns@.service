@@ -6,6 +6,9 @@ Before=netns-bridge@%i.service netns-net@%i.service
 StopWhenUnneeded=true
 BindPaths=/etc/netns/%I/resolv.conf:/etc/resolv.conf
 
+[Install]
+RequiredBy=netns-bridge@%i.service netns-nat@%i.service
+
 [Service]
 Type=oneshot
 RemainAfterExit=yes

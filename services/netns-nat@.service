@@ -4,6 +4,8 @@ Documentation=https://github.com/Jamesits/systemd-named-netns
 BindsTo=netns@%i.service
 After=netns@%i.service
 Conflicts=netns-bridge@%i.service
+
+[Install]
 Also=netns@%i.service
 
 [Service]
@@ -16,9 +18,9 @@ EnvironmentFile=-/etc/default/netns-nat-%I
 
 ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
 ExecStart=/bin/ip link set ${DEVNAME_INSIDE} netns %I
-ExecStart=/bin/ip addr add ${GATEWAY_IP}/${CIDR} dev ${DEVNAME_OUTSIDE}
+ExecStart=/bin/ip address add ${GATEWAY_IP}/${CIDR} dev ${DEVNAME_OUTSIDE}
 ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} up
-ExecStart=/bin/ip netns exec %I /bin/ip addr add ${CLIENT_IP}/${CIDR} dev ${DEVNAME_INSIDE}
+ExecStart=/bin/ip netns exec %I /bin/ip address add ${CLIENT_IP}/${CIDR} dev ${DEVNAME_INSIDE}
 ExecStart=/bin/ip netns exec %I /bin/ip link set ${DEVNAME_INSIDE} up
 ExecStart=/bin/ip netns exec %I /bin/ip route add default via ${GATEWAY_IP}
 ExecStart=/bin/iptables -t nat -A POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
