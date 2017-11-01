@@ -66,7 +66,7 @@ JoinsNamespaceOf=netns@foo.service
 [Service]
 PrivateNetwork=yes
 ```
-Do a `systemctl daemon-reload` afterward.
+Do a `systemctl daemon-reload` afterwards.
 
 ## Configuration
 
