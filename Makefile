@@ -5,10 +5,11 @@ install:
 	install --owner=root --group=root --mode=644 configs/netns-bridge /etc/default
 	install --owner=root --group=root --mode=644 configs/netns-nat /etc/default
 	install --owner=root --group=root --mode=755 scripts/chnetns /usr/bin
+	install --owner=root --group=root --mode=755 scripts/netnsinit /usr/bin
 	systemctl daemon-reload
 
 uninstall:
 	systemctl stop netns@*.service
 	systemctl disable netns@*.service
 	rm /usr/lib/systemd/system/netns@{,-bridge,-nat}.service
-	rm /usr/bin/chnetns
+	rm /usr/bin/{chnetns,netnsinit}

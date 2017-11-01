@@ -22,4 +22,6 @@ ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} up
 ExecStart=/bin/ip link set ${DEVNAME_INSIDE} netns %I
 ExecStart=/bin/ip netns exec %I /bin/ip link set ${DEVNAME_INSIDE} up
 
+ExecStartPost=/usr/bin/netnsinit bridge %I
+
 ExecStop=/bin/ip link delete ${DEVNAME_OUTSIDE}
