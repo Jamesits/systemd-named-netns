@@ -1,7 +1,10 @@
 [Unit]
-Description=veth interface inside namespace %I
-Requires=netns@%I.service
-After=netns@%I.service
+Description=Bridging service for netns %I
+Documentation=https://github.com/Jamesits/systemd-named-netns
+BindsTo=netns@%i.service
+After=network.target netns@%i.service
+Conflicts=netns-nat@%i.service
+Also=netns@%i.service
 
 [Service]
 Type=oneshot
@@ -9,10 +12,12 @@ RemainAfterExit=yes
 Environment=DEVNAME_OUTSIDE=ve-%I0
 Environment=DEVNAME_INSIDE=ve-%I1
 EnvironmentFile=/etc/default/netns-bridge
-EnvironmentFile=/etc/default/netns-bridge-%I
+EnvironmentFile=-/etc/default/netns-bridge-%I
 
 ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
 ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
-ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} down
+ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} up
+ExecStart=/bin/ip link set ${DEVNAME_INSIDE} netns %I
+ExecStart=/bin/ip netns exec %I /bin/ip link set ${DEVNAME_INSIDE} up
 
 ExecStop=/bin/ip link delete ${DEVNAME_OUTSIDE}
