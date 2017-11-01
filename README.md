@@ -24,6 +24,7 @@ Bridged to host network:
 ```shell
 systemctl start netns-bridge@foo
 ```
+(For the default config, it will bridge to `br0`. You should create the bridge first.)
 
 NATed:
 ```shell
@@ -39,11 +40,19 @@ Note:
  * In the first 2 cases, `netns@foo` is automatically started.
  * You may want to `systemctl enable` them to make them available after every boot.
 
+Remove netns (for all cases):
+
+```shell
+systemctl stop netns@foo
+```
+
 ### Use the netns manually
 
 ```shell
-ip netns exec foo bash
+chnetns foo bash
 ```
+
+Note: you may need root privilege to use `chnetns`.
 
 ### Put a systemd service to that netns
 

@@ -3,8 +3,6 @@ Description=Named network namespace %I
 Documentation=https://github.com/Jamesits/systemd-named-netns
 After=network.target
 Before=netns-bridge@%i.service netns-net@%i.service
-StopWhenUnneeded=true
-BindPaths=/etc/netns/%I/resolv.conf:/etc/resolv.conf
 
 [Install]
 RequiredBy=netns-bridge@%i.service netns-nat@%i.service
