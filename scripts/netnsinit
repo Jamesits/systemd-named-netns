@@ -13,6 +13,7 @@ autoconfigure_bridge() {
 	DEVNAME_INSIDE=ve-${NSNAME}1
 	source /etc/default/netns-bridge
 	! source "/etc/default/netns-bridge-${NSNAME}"
+	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
 	if [ ${DHCPV4} == "1" ]; then
 		! mkdir -p /var/run/netns
 		dhclient -v -i ${DEVNAME_INSIDE} -pf /var/run/netns/dhclient-${NSNAME}.pid
@@ -27,6 +28,7 @@ autoconfigure_nat() {
 	DEVNAME_INSIDE=ve-${NSNAME}1
 	source /etc/default/netns-nat
 	! source "/etc/default/netns-nat-${NSNAME}"
+	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
 }
 
 if [ $# == 0 ]; then
