@@ -56,7 +56,7 @@ Note: you may need root privilege to use `chnetns`.
 
 ### Put a systemd service to that netns
 
-Assume you want to edit `bar.service`, Create a file named `/etc/systemd/system/bar.d/netns.conf` and put the following content in:
+Assume you want to put `bar.service` into netns `foo`, Create a file named `/etc/systemd/system/bar.service.d/netns.conf` and put the following content in:
 ```
 [Unit]
 BindsTo=netns@foo.service
@@ -66,9 +66,9 @@ JoinsNamespaceOf=netns@foo.service
 [Service]
 PrivateNetwork=yes
 ```
-Do a `systemctl daemon-reload` afterwards.
+Do a `systemctl daemon-reload` afterwards. If you have enabled it, `systemctl reenable bar.service` too.
 
-If you need automatic bridging or NAT, replace all `netns@foo.service` with `netns-bridge@foo.service` or `netns-nat@foo.service`.
+If you need automatic bridging or NAT, `systemctl enable netns-bridge@foo.service` or `systemctl enable netns-nat@foo.service`.
 
 ## Configuration
 
