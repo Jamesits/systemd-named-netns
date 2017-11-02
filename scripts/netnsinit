@@ -1,3 +1,39 @@
 #!/bin/sh
 
-exit 0
+display_usage() {
+	echo "Auto configuration for systemd-named-netns."
+	echo -e "\nUsage:\n\t$0 network-type ns-name \n"
+	echo "Note: you may need root privileges for this."
+}
+
+autoconfigure_bridge() {
+
+}
+
+autoconfigure_nat() {
+
+}
+
+if [ $# == 0 ]; then
+	display_usage
+	exit 1
+fi
+
+case "$1" in
+	"--help" | "-h")
+		display_usage
+		exit 0
+		;;
+  "bridge")
+    autoconfigure_bridge
+    exit 0
+    ;;
+  "nat")
+    autoconfigure_nat
+    exit 0
+    ;;
+	*)
+	  echo "Unknown network type. Quitting."
+    exit 1
+	  ;;
+esac
