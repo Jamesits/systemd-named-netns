@@ -18,18 +18,18 @@ EnvironmentFile=/etc/default/netns-bridge
 EnvironmentFile=-/etc/default/netns-bridge-%I
 BindPaths=/usr/bin/netnsinit
 
-ExecStartPre=-/bin/ip link delete ${DEVNAME_OUTSIDE}
-ExecStartPre=-/bin/ip link delete ${DEVNAME_INSIDE}
+ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}
+ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_INSIDE}
 
-ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
-ExecStart=-/sbin/tc qdisc del dev ${DEVNAME_INSIDE} root
-ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
-ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} up
-ExecStart=/bin/ip link set ${DEVNAME_INSIDE} netns %I
-ExecStart=/bin/ip netns exec %I /bin/ip link set ${DEVNAME_INSIDE} up
+ExecStart=/usr/bin/env ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
+ExecStart=-/usr/bin/env tc qdisc del dev ${DEVNAME_INSIDE} root
+ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
+ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} up
+ExecStart=/usr/bin/env ip link set ${DEVNAME_INSIDE} netns %I
+ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env ip link set ${DEVNAME_INSIDE} up
 
-ExecStartPost=/bin/ip netns exec %I /usr/bin/netnsinit bridge %I
+ExecStartPost=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit bridge %I
 
-ExecStop=-/bin/kill -15 `cat /var/run/netns/dhclient-%i.pid`
-ExecStop=-/bin/rm /var/run/netns/dhclient-%i.pid
-ExecStop=/bin/ip link delete ${DEVNAME_OUTSIDE}
+ExecStop=-/usr/bin/env kill -15 `cat /var/run/netns/dhclient-%i.pid`
+ExecStop=-/usr/bin/env rm /var/run/netns/dhclient-%i.pid
+ExecStop=/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}

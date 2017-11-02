@@ -12,10 +12,10 @@ Type=oneshot
 RemainAfterExit=yes
 PrivateNetwork=yes
 
-ExecStartPre=-/bin/ip netns delete %I
+ExecStartPre=-/usr/bin/env ip netns delete %I
 
-ExecStart=/bin/ip netns add %I
-ExecStart=/bin/umount /var/run/netns/%I
-ExecStart=/bin/mount --bind /proc/self/ns/net /var/run/netns/%I
+ExecStart=/usr/bin/env ip netns add %I
+ExecStart=/usr/bin/env umount /var/run/netns/%I
+ExecStart=/usr/bin/env mount --bind /proc/self/ns/net /var/run/netns/%I
 
-ExecStop=/bin/ip netns delete %I
+ExecStop=/usr/bin/env ip netns delete %I

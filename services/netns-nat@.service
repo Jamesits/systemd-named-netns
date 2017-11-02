@@ -18,20 +18,20 @@ EnvironmentFile=/etc/default/netns-nat
 EnvironmentFile=-/etc/default/netns-nat-%I
 BindPaths=/usr/bin/netnsinit
 
-ExecStartPre=-/bin/ip link delete ${DEVNAME_OUTSIDE}
-ExecStartPre=-/bin/ip link delete ${DEVNAME_INSIDE}
+ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}
+ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_INSIDE}
 
-ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
-ExecStart=-/sbin/tc qdisc del dev ${DEVNAME_INSIDE} root
-ExecStart=/bin/ip link set ${DEVNAME_INSIDE} netns %I
-ExecStart=/bin/ip address add ${GATEWAY_IP}/${CIDR} dev ${DEVNAME_OUTSIDE}
-ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} up
-ExecStart=/bin/ip netns exec %I /bin/ip address add ${CLIENT_IP}/${CIDR} dev ${DEVNAME_INSIDE}
-ExecStart=/bin/ip netns exec %I /bin/ip link set ${DEVNAME_INSIDE} up
-ExecStart=/bin/ip netns exec %I /bin/ip route add default via ${GATEWAY_IP}
-ExecStart=/sbin/iptables -t nat -A POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
+ExecStart=/usr/bin/env ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
+ExecStart=-/usr/bin/env tc qdisc del dev ${DEVNAME_INSIDE} root
+ExecStart=/usr/bin/env ip link set ${DEVNAME_INSIDE} netns %I
+ExecStart=/usr/bin/env ip address add ${GATEWAY_IP}/${CIDR} dev ${DEVNAME_OUTSIDE}
+ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} up
+ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env ip address add ${CLIENT_IP}/${CIDR} dev ${DEVNAME_INSIDE}
+ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env ip link set ${DEVNAME_INSIDE} up
+ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env ip route add default via ${GATEWAY_IP}
+ExecStart=/usr/bin/env iptables -t nat -A POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
 
-ExecStartPost=/bin/ip netns exec %I /usr/bin/netnsinit nat %I
+ExecStartPost=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit nat %I
 
-ExecStop=/sbin/iptables -t nat -D POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
-ExecStop=/bin/ip link delete ${DEVNAME_OUTSIDE}
+ExecStop=/usr/bin/env iptables -t nat -D POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
+ExecStop=/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}
