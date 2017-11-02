@@ -22,6 +22,7 @@ ExecStartPre=-/bin/ip link delete ${DEVNAME_OUTSIDE}
 ExecStartPre=-/bin/ip link delete ${DEVNAME_INSIDE}
 
 ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
+ExecStart=-/sbin/tc qdisc del dev ${DEVNAME_INSIDE} root
 ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
 ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} up
 ExecStart=/bin/ip link set ${DEVNAME_INSIDE} netns %I
