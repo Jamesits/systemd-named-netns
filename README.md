@@ -24,7 +24,7 @@ Bridged to host network:
 ```shell
 systemctl start netns-bridge@foo
 ```
-(For the default config, it will bridge to `br0`. You should create the bridge first.)
+(For the default config, it will bridge to `br0`. You should create the bridge first. See [wiki/bridging](https://github.com/Jamesits/systemd-named-netns/wiki/bridging))
 
 NATed:
 ```shell
