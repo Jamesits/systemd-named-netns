@@ -11,6 +11,7 @@ display_usage() {
 autoconfigure_bridge() {
 	NSNAME=$2
 	DEVNAME_INSIDE=ve-${NSNAME}1
+	echo "Starting autoconfigure for bridge ${NSNAME}"
 	source /etc/default/netns-bridge
 	! source "/etc/default/netns-bridge-${NSNAME}"
 	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
@@ -21,14 +22,17 @@ autoconfigure_bridge() {
 		[ ! -z "${IPADDR}" ] && /bin/ip address add ${IPADDR}/${CIDR} dev ${DEVNAME_INSIDE}
 		[ ! -z "${GATEWAY}" ] && /bin/ip route add default via ${GATEWAY}
 	fi
+	echo "Autoconfiguration finished."
 }
 
 autoconfigure_nat() {
 	NSNAME=$2
 	DEVNAME_INSIDE=ve-${NSNAME}1
+	echo "Starting autoconfiguration of NAT ${NSNAME}"
 	source /etc/default/netns-nat
 	! source "/etc/default/netns-nat-${NSNAME}"
 	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
+	echo "Autoconfiguration finished."
 }
 
 if [ $# == 0 ]; then
