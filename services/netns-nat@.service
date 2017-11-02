@@ -15,7 +15,7 @@ Environment=DEVNAME_OUTSIDE=ve-%I0
 Environment=DEVNAME_INSIDE=ve-%I1
 EnvironmentFile=/etc/default/netns-nat
 EnvironmentFile=-/etc/default/netns-nat-%I
-BindPaths=/usr/bin/netnsinit:/sbin/netnsinit
+BindPaths=/usr/bin/netnsinit
 
 ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
 ExecStart=/bin/ip link set ${DEVNAME_INSIDE} netns %I
@@ -26,7 +26,7 @@ ExecStart=/bin/ip netns exec %I /bin/ip link set ${DEVNAME_INSIDE} up
 ExecStart=/bin/ip netns exec %I /bin/ip route add default via ${GATEWAY_IP}
 ExecStart=/bin/iptables -t nat -A POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
 
-ExecStartPost=/bin/ip netns exec %I /sbin/netnsinit nat %I
+ExecStartPost=/bin/ip netns exec %I /usr/bin/netnsinit nat %I
 
 ExecStop=/bin/iptables -t nat -D POSTROUTING -s ${GATEWAY_IP}/${CIDR} -j MASQUERADE
 ExecStop=/bin/ip link delete ${DEVNAME_OUTSIDE}
