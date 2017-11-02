@@ -68,6 +68,8 @@ PrivateNetwork=yes
 ```
 Do a `systemctl daemon-reload` afterwards.
 
+If you need automatic bridging or NAT, replace all `netns@foo.service` with `netns-bridge@foo.service` or `netns-nat@foo.service`.
+
 ## Configuration
 
 Global config file is located at `/etc/default/netns-bridge` and `/etc/default/netns-nat`. You can create individual config file for each netns named in `netns-bridge-foo` or `netns-nat-foo` to override global config.
