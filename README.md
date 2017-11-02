@@ -68,7 +68,7 @@ PrivateNetwork=yes
 ```
 Do a `systemctl daemon-reload` afterwards.
 
-If you need automatic bridging or NAT, replace all `netns@foo.service` with `netns-bridge@foo.service` or `netns-nat@foo.service`.
+If you need automatic bridging or NAT, `systemctl enable netns-bridge@foo.service` or `systemctl enable netns-nat@foo.service`.
 
 ## Configuration
 
