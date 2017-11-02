@@ -11,8 +11,6 @@ RequiredBy=netns-bridge@%i.service netns-nat@%i.service
 Type=oneshot
 RemainAfterExit=yes
 PrivateNetwork=yes
-# Temporary removed due to a bug (maybe)
-#BindPaths=-/etc/netns/%I/resolv.conf:/etc/resolv.conf
 
 ExecStartPre=-/bin/ip netns delete %I
 
