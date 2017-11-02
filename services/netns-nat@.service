@@ -5,6 +5,10 @@ BindsTo=netns@%i.service
 After=netns@%i.service
 Conflicts=netns-bridge@%i.service
 
+[Install]
+WantedBy=network.target
+RequiredBy=netns@%i.service
+
 [Service]
 Type=oneshot
 RemainAfterExit=yes
