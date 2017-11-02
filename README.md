@@ -18,7 +18,7 @@ You ran run `make uninstall` to remove the systemd units, but the configs locate
 
 ### Create netns
 
-Assume you want to create a netns named `foo`. 
+Assume you want to create a netns named `foo`. (Note: do not use `-`, space or other strange characters in netns name!) 
 
 Bridged to host network:
 ```shell
