@@ -3,3 +3,11 @@
 # netns-bridge-<your_netns_name>.
 
 BRIDGE=br0
+
+# If you need DHCP
+DHCPV4=1
+
+# If you need static IP
+#IPADDR=192.168.1.2
+#CIDR=24
+#GATEWAY=192.168.1.1

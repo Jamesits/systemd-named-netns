@@ -25,4 +25,6 @@ ExecStart=/bin/ip netns exec %I /bin/ip link set ${DEVNAME_INSIDE} up
 
 ExecStartPost=/bin/ip netns exec %I /sbin/netnsinit bridge %I
 
+ExecStop=-/bin/kill -15 `cat /var/run/netns/dhclient-%i.pid`
+ExecStop=-/bin/rm /var/run/netns/dhclient-%i.pid
 ExecStop=/bin/ip link delete ${DEVNAME_OUTSIDE}
