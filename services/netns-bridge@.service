@@ -18,6 +18,9 @@ EnvironmentFile=/etc/default/netns-bridge
 EnvironmentFile=-/etc/default/netns-bridge-%I
 BindPaths=/usr/bin/netnsinit
 
+ExecStartPre=-/bin/ip link delete ${DEVNAME_OUTSIDE}
+ExecStartPre=-/bin/ip link delete ${DEVNAME_INSIDE}
+
 ExecStart=/bin/ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
 ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
 ExecStart=/bin/ip link set ${DEVNAME_OUTSIDE} up

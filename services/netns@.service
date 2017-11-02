@@ -11,11 +11,12 @@ RequiredBy=netns-bridge@%i.service netns-nat@%i.service
 Type=oneshot
 RemainAfterExit=yes
 PrivateNetwork=yes
+BindPaths=-/etc/netns/%I/resolv.conf:/etc/resolv.conf
 
 ExecStartPre=-/bin/ip netns delete %I
 
 ExecStart=/bin/ip netns add %I
-ExecStart=/bin/umount /var/run/netns/%I
+ExecStart=-/bin/umount /var/run/netns/%I
 ExecStart=/bin/mount --bind /proc/self/ns/net /var/run/netns/%I
 
 ExecStop=/bin/ip netns delete %I
