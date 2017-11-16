@@ -11,9 +11,10 @@ This project enables you to:
 ## Installation
 
 Dependencies:
- * Recent version of systemd
+ * Recent version of systemd (newer is better; tested down to v232)
  * iproute2
- * iptables
+ * iptables (only if you use default NAT config)
+ * `/usr/bin/env`
 
 For installation, run `make install` with root privilege. 
 
