@@ -16,7 +16,6 @@ Environment=DEVNAME_OUTSIDE=ve-%I0
 Environment=DEVNAME_INSIDE=ve-%I1
 EnvironmentFile=/etc/default/netns-nat
 EnvironmentFile=-/etc/default/netns-nat-%I
-BindPaths=/usr/bin/netnsinit
 
 ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}
 ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_INSIDE}
