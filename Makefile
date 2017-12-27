@@ -1,6 +1,7 @@
 .PHONY: install uninstall
 
 install:
+	mkdir -p /usr/lib/systemd/system
 	install --owner=root --group=root --mode=644 services/netns@.service /usr/lib/systemd/system/
 	install --owner=root --group=root --mode=644 services/netns-bridge@.service /usr/lib/systemd/system/
 	install --owner=root --group=root --mode=644 services/netns-nat@.service /usr/lib/systemd/system/
