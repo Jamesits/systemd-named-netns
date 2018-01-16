@@ -1,0 +1,20 @@
+Source: systemd-named-netns
+Section: admin
+Priority: optional
+Maintainer: Maximilian Stein <m@steiny.biz>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: https://github.com/Jamesits/systemd-named-netns
+
+Package: systemd-named-netns
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd (>=232)
+Recommends: iproute2, iptables
+Description: Manage netns on the fly with systemd services
+ This project enables you to:
+  * Create and delete named netns on the fly like systemd services
+  * Start named netns on boot
+  * Quickly set up bridging or NAT from netns to host
+  * Use named netns in systemd services
+    * Enables them to connect to the internet too
+    * And you can manually switch to its netns (since they are named)
