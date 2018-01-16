@@ -14,10 +14,10 @@ install:
 	install --owner=root --group=root --mode=644 configs/netns-tunnel $(DESTDIR)/etc/default/
 	install --owner=root --group=root --mode=755 scripts/chnetns $(DESTDIR)/usr/bin/
 	install --owner=root --group=root --mode=755 scripts/netnsinit $(DESTDIR)/usr/bin/
-	systemctl daemon-reload
+	systemctl daemon-reload || true
 
 uninstall:
-	systemctl stop netns@*.service
+	systemctl stop netns@*.service || true
 	systemctl disable netns@*.service || true
 	systemctl disable netns-bridge@*.service || true
 	systemctl disable netns-nat@*.service || true
