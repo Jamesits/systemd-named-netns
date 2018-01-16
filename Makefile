@@ -4,7 +4,7 @@ all:
 	
 
 install:
-	mkdir -p $(DESTDIR)/usr/lib/systemd/system
+	install --directory $(DESTDIR)/usr/lib/systemd/system $(DESTDIR)/etc/default $(DESTDIR)/usr/bin
 	install --owner=root --group=root --mode=644 services/netns@.service $(DESTDIR)/usr/lib/systemd/system/
 	install --owner=root --group=root --mode=644 services/netns-bridge@.service $(DESTDIR)/usr/lib/systemd/system/
 	install --owner=root --group=root --mode=644 services/netns-nat@.service $(DESTDIR)/usr/lib/systemd/system/
