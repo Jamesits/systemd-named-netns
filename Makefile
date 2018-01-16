@@ -8,8 +8,10 @@ install:
 	install --owner=root --group=root --mode=644 services/netns@.service /usr/lib/systemd/system/
 	install --owner=root --group=root --mode=644 services/netns-bridge@.service /usr/lib/systemd/system/
 	install --owner=root --group=root --mode=644 services/netns-nat@.service /usr/lib/systemd/system/
+	install --owner=root --group=root --mode=644 services/netns-tunnel@.service /usr/lib/systemd/system/
 	install --owner=root --group=root --mode=644 configs/netns-bridge /etc/default/
 	install --owner=root --group=root --mode=644 configs/netns-nat /etc/default/
+	install --owner=root --group=root --mode=644 configs/netns-tunnel /etc/default/
 	install --owner=root --group=root --mode=755 scripts/chnetns /usr/bin/
 	install --owner=root --group=root --mode=755 scripts/netnsinit /usr/bin/
 	systemctl daemon-reload
@@ -22,5 +24,6 @@ uninstall:
 	rm -f /usr/lib/systemd/system/netns@.service
 	rm -f /usr/lib/systemd/system/netns-bridge@.service
 	rm -f /usr/lib/systemd/system/netns-nat@.service
+	rm -f /usr/lib/systemd/system/netns-tunnel@.service
 	rm -f /usr/bin/chnetns
 	rm -f /usr/bin/netnsinit

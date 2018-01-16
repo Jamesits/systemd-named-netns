@@ -15,7 +15,24 @@ autoconfigure_bridge() {
 	source /etc/default/netns-bridge
 	! source "/etc/default/netns-bridge-${NSNAME}"
 	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
-	if [ ${DHCPV4} == "1" ]; then
+	if [ "${DHCPV4}" == "1" ]; then
+		! mkdir -p /var/run/netns
+		dhclient -v -i ${DEVNAME_INSIDE} -pf /var/run/netns/dhclient-${NSNAME}.pid
+	else
+		[ ! -z "${IPADDR}" ] && /bin/ip address add ${IPADDR}/${CIDR} dev ${DEVNAME_INSIDE}
+		[ ! -z "${GATEWAY}" ] && /bin/ip route add default via ${GATEWAY}
+	fi
+	echo "Autoconfiguration finished."
+}
+
+autoconfigure_tunnel() {
+	NSNAME=$2
+	DEVNAME_INSIDE=ve-${NSNAME}1
+	echo "Starting autoconfigure for tunnel ${NSNAME}"
+	source /etc/default/netns-tunnel
+	! source "/etc/default/netns-tunnel-${NSNAME}"
+	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
+	if [ "${DHCPV4}" == "1" ]; then
 		! mkdir -p /var/run/netns
 		dhclient -v -i ${DEVNAME_INSIDE} -pf /var/run/netns/dhclient-${NSNAME}.pid
 	else
@@ -47,6 +64,10 @@ case "$1" in
 		;;
 	"bridge")
 		autoconfigure_bridge "$@"
+		exit 0
+		;;
+	"tunnel")
+		autoconfigure_tunnel "$@"
 		exit 0
 		;;
 	"nat")
