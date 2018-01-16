@@ -10,7 +10,7 @@ display_usage() {
 
 autoconfigure_bridge() {
 	NSNAME=$2
-	DEVNAME_INSIDE=ve-${NSNAME}1
+	DEVNAME_INSIDE=vn-${NSNAME}1
 	echo "Starting autoconfigure for bridge ${NSNAME}"
 	source /etc/default/netns-bridge
 	! source "/etc/default/netns-bridge-${NSNAME}"
@@ -27,7 +27,7 @@ autoconfigure_bridge() {
 
 autoconfigure_tunnel() {
 	NSNAME=$2
-	DEVNAME_INSIDE=ve-${NSNAME}1
+	DEVNAME_INSIDE=vn-${NSNAME}1
 	echo "Starting autoconfigure for tunnel ${NSNAME}"
 	source /etc/default/netns-tunnel
 	! source "/etc/default/netns-tunnel-${NSNAME}"
@@ -44,7 +44,7 @@ autoconfigure_tunnel() {
 
 autoconfigure_nat() {
 	NSNAME=$2
-	DEVNAME_INSIDE=ve-${NSNAME}1
+	DEVNAME_INSIDE=vn-${NSNAME}1
 	echo "Starting autoconfiguration of NAT ${NSNAME}"
 	source /etc/default/netns-nat
 	! source "/etc/default/netns-nat-${NSNAME}"
