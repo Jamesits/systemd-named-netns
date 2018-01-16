@@ -1,4 +1,7 @@
-.PHONY: install uninstall
+.PHONY: all install uninstall
+
+all:
+	
 
 install:
 	mkdir -p /usr/lib/systemd/system
