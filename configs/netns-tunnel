@@ -3,15 +3,14 @@
 # netns-tunnel-<your_netns_name>.
 
 #IP address of the interface outside
-IPADDR_OUTSIDE=192.168.1.1
-CIDR=24
+IPADDR_OUTSIDE=192.168.1.1/24
 
 # If you need DHCP
 #DHCPV4=1
 
 # If you need static IP
-IPADDR=192.168.1.2
-GATEWAY=192.168.1.1
+IPADDR=192.168.1.2/24
+GATEWAY=192.168.1.1/24
 
 # If you need static MAC
 #MACADDR=00:11:22:33:44:55
