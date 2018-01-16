@@ -23,7 +23,7 @@ ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_INSIDE}
 
 ExecStart=/usr/bin/env ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
 ExecStart=-/usr/bin/env tc qdisc del dev ${DEVNAME_INSIDE} root
-ExecStart=-/usr/bin/env ip address add ${IPADDR_OUTSIDE}/${CIDR} dev ${DEVNAME_OUTSIDE}
+ExecStart=-/usr/bin/env ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
 ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} up
 ExecStart=/usr/bin/env ip link set ${DEVNAME_INSIDE} netns %I
 ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env ip link set ${DEVNAME_INSIDE} up
