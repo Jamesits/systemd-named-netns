@@ -2,7 +2,7 @@ Source: systemd-named-netns
 Section: admin
 Priority: optional
 Maintainer: Maximilian Stein <m@steiny.biz>
-Build-Depends: debhelper (>= 9)
+Build-Depends: debhelper (>= 9), dh-systemd
 Standards-Version: 3.9.8
 Homepage: https://github.com/Jamesits/systemd-named-netns
 
