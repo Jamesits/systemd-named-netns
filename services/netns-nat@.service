@@ -12,8 +12,8 @@ RequiredBy=netns@%i.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-Environment=DEVNAME_OUTSIDE=ve-%I0
-Environment=DEVNAME_INSIDE=ve-%I1
+Environment=DEVNAME_OUTSIDE=vn-%I0
+Environment=DEVNAME_INSIDE=vn-%I1
 EnvironmentFile=/etc/default/netns-nat
 EnvironmentFile=-/etc/default/netns-nat-%I
 
