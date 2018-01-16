@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: systemd-named-netns
-Source: <url://example.com>
+Source: https://github.com/Jamesits/systemd-named-netns
 
 Files: *
 Copyright: 2017, 2018 James Swineson <github@public.swineson.me>
