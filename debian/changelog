@@ -1,0 +1,5 @@
+systemd-named-netns (0.1-1) unstable; urgency=medium
+
+  * Initial Release.
+
+ -- Maximilian Stein <m@steiny.biz>  Tue, 16 Jan 2018 23:37:52 +0100
