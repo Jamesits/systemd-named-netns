@@ -1,4 +1,11 @@
-systemd-named-netns (0.1-1) unstable; urgency=medium
+systemd-named-netns (0~20180117-2) unstable; urgency=medium
+
+  * Fix missing build-depends
+  * Add manpages
+
+ -- Maximilian Stein <m@steiny.biz>  Wed, 17 Jan 2018 00:45:31 +0100
+
+systemd-named-netns (0~20180117-1) unstable; urgency=medium
 
   * Initial Release.
 
