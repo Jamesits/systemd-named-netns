@@ -1,3 +1,9 @@
+systemd-named-netns (0~20180117-3) unstable; urgency=medium
+
+  * Install README
+
+ -- Maximilian Stein <m@steiny.biz>  Wed, 17 Jan 2018 01:18:20 +0100
+
 systemd-named-netns (0~20180117-2) unstable; urgency=medium
 
   * Fix missing build-depends
