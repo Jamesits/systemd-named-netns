@@ -1,26 +1,31 @@
 .PHONY: all install uninstall
 
+LIBDIR ?= /usr/lib
+
 all:
 	
 
 install:
-	mkdir -p /usr/lib/systemd/system
-	install --owner=root --group=root --mode=644 services/netns@.service /usr/lib/systemd/system/
-	install --owner=root --group=root --mode=644 services/netns-bridge@.service /usr/lib/systemd/system/
-	install --owner=root --group=root --mode=644 services/netns-nat@.service /usr/lib/systemd/system/
-	install --owner=root --group=root --mode=644 configs/netns-bridge /etc/default/
-	install --owner=root --group=root --mode=644 configs/netns-nat /etc/default/
-	install --owner=root --group=root --mode=755 scripts/chnetns /usr/bin/
-	install --owner=root --group=root --mode=755 scripts/netnsinit /usr/bin/
-	systemctl daemon-reload
+	install --directory $(DESTDIR)/$(LIBDIR)/systemd/system $(DESTDIR)/etc/default $(DESTDIR)/usr/bin $(DESTDIR)/usr/sbin
+	install --owner=root --group=root --mode=644 services/netns@.service $(DESTDIR)/$(LIBDIR)/systemd/system/
+	install --owner=root --group=root --mode=644 services/netns-bridge@.service $(DESTDIR)/$(LIBDIR)/systemd/system/
+	install --owner=root --group=root --mode=644 services/netns-nat@.service $(DESTDIR)/$(LIBDIR)/systemd/system/
+	install --owner=root --group=root --mode=644 services/netns-tunnel@.service $(DESTDIR)/$(LIBDIR)/systemd/system/
+	install --owner=root --group=root --mode=644 configs/netns-bridge $(DESTDIR)/etc/default/
+	install --owner=root --group=root --mode=644 configs/netns-nat $(DESTDIR)/etc/default/
+	install --owner=root --group=root --mode=644 configs/netns-tunnel $(DESTDIR)/etc/default/
+	install --owner=root --group=root --mode=755 scripts/chnetns $(DESTDIR)/usr/bin/
+	install --owner=root --group=root --mode=755 scripts/netnsinit $(DESTDIR)/usr/sbin/
+	systemctl daemon-reload || true
 
 uninstall:
-	systemctl stop netns@*.service
+	systemctl stop netns@*.service || true
 	systemctl disable netns@*.service || true
 	systemctl disable netns-bridge@*.service || true
 	systemctl disable netns-nat@*.service || true
-	rm -f /usr/lib/systemd/system/netns@.service
-	rm -f /usr/lib/systemd/system/netns-bridge@.service
-	rm -f /usr/lib/systemd/system/netns-nat@.service
-	rm -f /usr/bin/chnetns
-	rm -f /usr/bin/netnsinit
+	rm -f $(DESTDIR)/$(LIBDIR)/systemd/system/netns@.service
+	rm -f $(DESTDIR)/$(LIBDIR)/systemd/system/netns-bridge@.service
+	rm -f $(DESTDIR)/$(LIBDIR)/systemd/system/netns-nat@.service
+	rm -f $(DESTDIR)/$(LIBDIR)/systemd/system/netns-tunnel@.service
+	rm -f $(DESTDIR)/usr/bin/chnetns
+	rm -f $(DESTDIR)/usr/sbin/netnsinit
