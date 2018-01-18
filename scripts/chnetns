@@ -17,6 +17,6 @@ case "$1" in
 		exit 0
 		;;
 	*)
-	exec /bin/ip netns exec $@
+	exec /bin/ip netns exec "$@"
 	;;
 esac
