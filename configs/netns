@@ -1,0 +1,24 @@
+# This is the default config for netns-tunnel@.service,
+# netns-bridge@.service and netns-nat@.service.
+# You can override config per netns by creating a file named
+# netns-<your_netns_name>.
+
+# Bridge name for netns-bridge@.service
+BRIDGE=br0
+
+# IP address of the interface outside
+IPADDR_OUTSIDE=192.168.1.1/24
+
+# If you need DHCP
+# In order for this to function for netns-tunnel and
+# netns-nat you need a local DHCP server, e.g., the
+# one integrated in systemd-networkd. Netns bridge
+# can use your LAN's DHCP.
+#DHCPV4=1
+
+# If you need static IP
+IPADDR=192.168.1.2/24
+GATEWAY=192.168.1.1/24
+
+# If you need static MAC
+#MACADDR=00:11:22:33:44:55

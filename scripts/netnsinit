@@ -8,47 +8,35 @@ display_usage() {
 	echo "Note: you may need root privileges for this."
 }
 
-autoconfigure_bridge() {
-	NSNAME=$2
-	DEVNAME_INSIDE=vn-${NSNAME}1
-	echo "Starting autoconfigure for bridge ${NSNAME}"
-	source /etc/default/netns-bridge
-	! source "/etc/default/netns-bridge-${NSNAME}"
-	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
-	if [ "${DHCPV4}" == "1" ]; then
-		! mkdir -p /var/run/netns
-		dhclient -v -i ${DEVNAME_INSIDE} -pf /var/run/netns/dhclient-${NSNAME}.pid
-	else
-		[ ! -z "${IPADDR}" ] && /bin/ip address add ${IPADDR} dev ${DEVNAME_INSIDE}
-		[ ! -z "${GATEWAY}" ] && /bin/ip route add default via ${GATEWAY}
-	fi
-	echo "Autoconfiguration finished."
-}
-
 autoconfigure_tunnel() {
-	NSNAME=$2
-	DEVNAME_INSIDE=vn-${NSNAME}1
-	echo "Starting autoconfigure for tunnel ${NSNAME}"
-	source /etc/default/netns-tunnel
-	! source "/etc/default/netns-tunnel-${NSNAME}"
 	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
 	if [ "${DHCPV4}" == "1" ]; then
 		! mkdir -p /var/run/netns
-		dhclient -v -i ${DEVNAME_INSIDE} -pf /var/run/netns/dhclient-${NSNAME}.pid
+		dhclient -v -i ${DEVNAME_INSIDE} -nw -pf /var/run/netns/dhclient-${NSNAME}.pid
 	else
 		[ ! -z "${IPADDR}" ] && /bin/ip address add ${IPADDR} dev ${DEVNAME_INSIDE}
-		[ ! -z "${GATEWAY}" ] && /bin/ip route add default via ${GATEWAY}
+		[ ! -z "${GATEWAY}" ] && /bin/ip route add default via ${GATEWAY%%/*}
 	fi
-	echo "Autoconfiguration finished."
 }
 
 autoconfigure_nat() {
-	NSNAME=$2
+	# add default route if gateway undefined
+	[ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ] && /bin/ip route add default via ${IPADDR_OUTSIDE%%/*}
+}
+
+autoconfigure() {
+	local NSTYPE=$1
+	local NSNAME=$2
+
+	echo "Starting autoconfigure for $NSTYPE ${NSNAME}"
 	DEVNAME_INSIDE=vn-${NSNAME}1
-	echo "Starting autoconfiguration of NAT ${NSNAME}"
-	source /etc/default/netns-nat
-	! source "/etc/default/netns-nat-${NSNAME}"
-	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
+	source /etc/default/netns
+	! source "/etc/default/netns-${NSNAME}"
+
+	if type -t autoconfigure_$NSTYPE >/dev/null ; then
+		autoconfigure_$NSTYPE "$@"
+	fi
+
 	echo "Autoconfiguration finished."
 }
 
@@ -62,16 +50,8 @@ case "$1" in
 		display_usage
 		exit 0
 		;;
-	"bridge")
-		autoconfigure_bridge "$@"
-		exit 0
-		;;
-	"tunnel")
-		autoconfigure_tunnel "$@"
-		exit 0
-		;;
-	"nat")
-		autoconfigure_nat "$@"
+	"tunnel"|"bridge"|"nat")
+		autoconfigure "$@"
 		exit 0
 		;;
 	*)
