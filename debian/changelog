@@ -1,3 +1,10 @@
+systemd-named-netns (0~20180118-1) unstable; urgency=medium
+
+  * Upgrade to 0~20180118
+  * Pass correct library directory to install target
+
+ -- Maximilian Stein <m@steiny.biz>  Thu, 18 Jan 2018 17:34:09 +0100
+
 systemd-named-netns (0~20180117-3) unstable; urgency=medium
 
   * Install README
