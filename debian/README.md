@@ -13,10 +13,10 @@ Build Instructions
 Use `git-buildpackage` to create the Debian source and binary branch. Call
 these from the project's root directory:
 
-    gbp buildpackage --git-debian-branch=debian
+    gbp buildpackage
     fakeroot debian/rules clean
     # if you are ready to release, tag the result
-    gbp buildpackage --git-ignore-new  --git-tag-only
+    gbp buildpackage --git-tag-only
     git push --tags
 
 The resulting files (.deb, .changes, .dsc, .tar.gz) are located in the parent
