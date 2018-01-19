@@ -1,6 +1,0 @@
-# This is the default config for netns-nat
-# You can override config per netns by creating a file named
-# netns-nat-<your_netns_name>.
-
-GATEWAY_IP=192.168.99.1/30
-CLIENT_IP=192.168.99.2/30

@@ -1,8 +1,9 @@
 [Unit]
 Description=Bridging service for netns %I
 Documentation=https://github.com/Jamesits/systemd-named-netns
-BindsTo=netns@%i.service
-After=network.target netns@%i.service
+BindsTo=netns-tunnel@%i.service
+After=netns-tunnel@%i.service
+After=network.target
 Conflicts=netns-nat@%i.service
 
 [Install]
@@ -14,21 +15,9 @@ Type=oneshot
 RemainAfterExit=yes
 Environment=DEVNAME_OUTSIDE=vn-%I0
 Environment=DEVNAME_INSIDE=vn-%I1
-EnvironmentFile=/etc/default/netns-bridge
-EnvironmentFile=-/etc/default/netns-bridge-%I
+EnvironmentFile=/etc/default/netns
+EnvironmentFile=-/etc/default/netns-%I
 
-ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}
-ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_INSIDE}
-
-ExecStart=/usr/bin/env ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
-ExecStart=-/usr/bin/env tc qdisc del dev ${DEVNAME_INSIDE} root
 ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
-ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} up
-ExecStart=/usr/bin/env ip link set ${DEVNAME_INSIDE} netns %I
-ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env ip link set ${DEVNAME_INSIDE} up
 
-ExecStartPost=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit bridge %I
-
-ExecStop=-/usr/bin/env kill -15 `cat /var/run/netns/dhclient-%i.pid`
-ExecStop=-/usr/bin/env rm /var/run/netns/dhclient-%i.pid
-ExecStop=/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}
+ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit bridge %I
