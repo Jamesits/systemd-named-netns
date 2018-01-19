@@ -1,3 +1,9 @@
+systemd-named-netns (0~20180119-1) unstable; urgency=medium
+
+  * New upstream version with completely rewritten config system
+
+ -- Maximilian Stein <m@steiny.biz>  Fri, 19 Jan 2018 14:44:39 +0100
+
 systemd-named-netns (0~20180118-1) unstable; urgency=medium
 
   * Upgrade to 0~20180118
