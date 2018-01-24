@@ -1,12 +1,14 @@
 [Unit]
 Description=Tunnel service for netns %I
 Documentation=https://github.com/Jamesits/systemd-named-netns
+
 BindsTo=netns@%i.service
 After=netns@%i.service
+Before=network.target network-online.target
 
 [Install]
-WantedBy=network.target
-RequiredBy=netns@%i.service
+WantedBy=network-online.target
+WantedBy=multi-user.target
 
 [Service]
 Type=oneshot
