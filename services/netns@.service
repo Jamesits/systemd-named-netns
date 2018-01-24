@@ -1,11 +1,13 @@
 [Unit]
 Description=Named network namespace %I
 Documentation=https://github.com/Jamesits/systemd-named-netns
-After=network.target
-Before=netns-bridge@%i.service netns-nat@%i.service
+
+After=network-pre.target
+Before=network.target network-online.target
 
 [Install]
-RequiredBy=netns-bridge@%i.service netns-nat@%i.service
+WantedBy=network-online.target
+WantedBy=multi-user.target
 
 [Service]
 Type=oneshot
