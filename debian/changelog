@@ -1,3 +1,10 @@
+systemd-named-netns (0~20180124-1) unstable; urgency=medium
+
+  * New upstream version
+  * Fixes systemd dependency ordering
+
+ -- Maximilian Stein <m@steiny.biz>  Wed, 24 Jan 2018 13:49:47 +0100
+
 systemd-named-netns (0~20180119-1) unstable; urgency=medium
 
   * New upstream version with completely rewritten config system
