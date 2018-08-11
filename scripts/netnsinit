@@ -9,19 +9,29 @@ display_usage() {
 }
 
 autoconfigure_tunnel() {
-	[ ! -z "$MACADDR" ] && /bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
+	if [ ! -z "$MACADDR" ]; then
+		/bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
+	fi
 	if [ "${DHCPV4}" == "1" ]; then
 		! mkdir -p /var/run/netns
 		dhclient -v -i ${DEVNAME_INSIDE} -nw -pf /var/run/netns/dhclient-${NSNAME}.pid
 	else
-		[ ! -z "${IPADDR}" ] && /bin/ip address add ${IPADDR} dev ${DEVNAME_INSIDE}
-		[ ! -z "${GATEWAY}" ] && /bin/ip route add default via ${GATEWAY%%/*}
+		if [ ! -z "${IPADDR}" ]; then
+			/bin/ip address add ${IPADDR} dev ${DEVNAME_INSIDE}
+		fi
+		if [ ! -z "${GATEWAY}" ]; then
+			/bin/ip route add default via ${GATEWAY%%/*}
+		fi
 	fi
+	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
 autoconfigure_nat() {
 	# add default route if gateway undefined
-	[ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ] && /bin/ip route add default via ${IPADDR_OUTSIDE%%/*}
+	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
+		/bin/ip route add default via ${IPADDR_OUTSIDE%%/*}
+	fi
+	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
 autoconfigure() {
