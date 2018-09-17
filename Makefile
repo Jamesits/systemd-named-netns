@@ -17,10 +17,10 @@ install:
 	systemctl daemon-reload || true
 
 uninstall:
-	systemctl disable "netns-tunnel@" || true
-	systemctl disable "netns-bridge@" || true
-	systemctl disable "netns-nat@" || true
-	systemctl disable "netns@" || true
+	systemctl disable --now "netns-tunnel@" || true
+	systemctl disable --now "netns-bridge@" || true
+	systemctl disable --now "netns-nat@" || true
+	systemctl disable --now "netns@" || true
 
 	rm -f $(DESTDIR)/$(LIBDIR)/systemd/system/netns@.service
 	rm -f $(DESTDIR)/$(LIBDIR)/systemd/system/netns-bridge@.service
