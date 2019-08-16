@@ -27,7 +27,7 @@ ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} up
 ExecStart=/usr/bin/env ip link set ${DEVNAME_INSIDE} netns %I
 # let this fail silently if IPADDR_OUTSIDE is undefined
 ExecStart=-/usr/bin/env ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
-ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env ip link set ${DEVNAME_INSIDE} up
+ExecStart=/usr/bin/env ip -n %I link set ${DEVNAME_INSIDE} up
 
 # do not run in ExecStartPost to prevent forked dhclient from being killed
 ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit tunnel %I
