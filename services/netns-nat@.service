@@ -29,4 +29,4 @@ ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit nat %I
 ExecStop=/usr/bin/env iptables -D FORWARD -o ${DEVNAME_OUTSIDE} -j ACCEPT
 ExecStop=/usr/bin/env iptables -D FORWARD -i ${DEVNAME_OUTSIDE} -j ACCEPT
 ExecStop=/usr/bin/env iptables -t nat -D POSTROUTING -s ${IPADDR_OUTSIDE} -j MASQUERADE
-ExecStart=/usr/bin/env iptables -D INPUT -I ${DEVNAME_OUTSIDE} -j ACCEPT
+ExecStop=/usr/bin/env iptables -D INPUT -I ${DEVNAME_OUTSIDE} -j ACCEPT
