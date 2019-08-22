@@ -23,3 +23,11 @@
 
 # If you need static MAC
 #MACADDR=00:11:22:33:44:55
+
+#NAT Accepting traffic back from the NetNS
+#By default, if the root NS contact a service
+#in the created NS, it won't get a response.
+#
+#Setting this setting to 1 add a iptable rule
+#to accept returning traffic
+#NAT_ACCEPT_TRAFFIC=1

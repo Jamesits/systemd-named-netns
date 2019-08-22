@@ -4,7 +4,7 @@ set -e
 
 display_usage() {
 	echo "Auto configuration for systemd-named-netns."
-	echo -e "\nUsage:\n\t$0 network-type ns-name \n"
+	echo -e "\nUsage:\n\t$0 network-type ns-name [optional params]\n"
 	echo "Note: you may need root privileges for this."
 }
 
@@ -27,19 +27,39 @@ autoconfigure_tunnel() {
 }
 
 autoconfigure_nat() {
+
 	# add default route if gateway undefined
 	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
 		/bin/ip route add default via ${IPADDR_OUTSIDE%%/*}
 	fi
+	
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
+autoconfigure_nat-access() {
+
+	if [ "${NAT_ACCEPT_TRAFFIC}" != "1" ]; then
+		return 0
+	fi
+	if [ "$3" == "up" ]; then
+		#Accept related traffic
+		iptables -I INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+		
+	elif  [ "$3" == "down" ]; then
+		iptables -D INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+	fi
+	
+	
+	return 0 # additional precation against "set -e" in case of future mods of this function
+}
 autoconfigure() {
 	local NSTYPE=$1
 	local NSNAME=$2
 
 	echo "Starting autoconfigure for $NSTYPE ${NSNAME}"
 	DEVNAME_INSIDE=vn-${NSNAME}1
+	DEVNAME_OUTSIDE=vn-${NSNAME}0
+	
 	source /etc/default/netns
 	! source "/etc/default/netns-${NSNAME}"
 
@@ -60,7 +80,7 @@ case "$1" in
 		display_usage
 		exit 0
 		;;
-	"tunnel"|"bridge"|"nat")
+	"tunnel"|"bridge"|"nat"|"nat-access")
 		autoconfigure "$@"
 		exit 0
 		;;
