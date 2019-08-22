@@ -22,9 +22,11 @@ EnvironmentFile=-/etc/default/netns-%I
 ExecStart=/usr/bin/env iptables -t nat -A POSTROUTING -s ${IPADDR_OUTSIDE} -j MASQUERADE
 ExecStart=/usr/bin/env iptables -A FORWARD -i ${DEVNAME_OUTSIDE} -j ACCEPT
 ExecStart=/usr/bin/env iptables -A FORWARD -o ${DEVNAME_OUTSIDE} -j ACCEPT
+ExecStart=/usr/bin/env netnsinit nat-access %I up
 
 ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit nat %I
 
 ExecStop=/usr/bin/env iptables -D FORWARD -o ${DEVNAME_OUTSIDE} -j ACCEPT
 ExecStop=/usr/bin/env iptables -D FORWARD -i ${DEVNAME_OUTSIDE} -j ACCEPT
 ExecStop=/usr/bin/env iptables -t nat -D POSTROUTING -s ${IPADDR_OUTSIDE} -j MASQUERADE
+ExecStop=/usr/bin/env netnsinit nat-access %I down
