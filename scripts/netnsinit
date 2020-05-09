@@ -58,7 +58,7 @@ autoconfigure() {
 
 	echo "Starting autoconfigure for $NSTYPE ${NSNAME}"
 	if [ "$NSTYPE" == "mvbr" ]; then
-		DEVNAME_INSIDE=mv-${NSNAME}0
+		DEVNAME_INSIDE=mv0
 	else
 		DEVNAME_INSIDE=vn-${NSNAME}1
 		DEVNAME_OUTSIDE=vn-${NSNAME}0
