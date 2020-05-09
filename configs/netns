@@ -7,6 +7,9 @@
 # Bridge name for netns-bridge@.service
 #BRIDGE=br0
 
+# MACVLAN bridge device for netns-mvbr@.service
+#MACVLAN_BRIDGE=eth0
+
 # IP address of the interface outside
 #IPADDR_OUTSIDE=192.168.1.1/24
 
