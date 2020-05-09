@@ -7,7 +7,7 @@ This project enables you to:
  * Use named netns in systemd services
    * Enables them to connect to the internet too
    * And you can manually switch to its netns (since they are named)
-   
+
 ## Installation
 
 Dependencies:
@@ -16,7 +16,7 @@ Dependencies:
  * iptables (only if you use default NAT config)
  * `/usr/bin/env`
 
-For installation, run `make install` with root privilege. 
+For installation, run `make install` with root privilege.
 
 You ran run `make uninstall` to remove the systemd units, but the configs located in `/etc/default` will not be removed.
 
@@ -26,6 +26,21 @@ You ran run `make uninstall` to remove the systemd units, but the configs locate
 systemctl start netns-nat@helloworld
 chnetns helloworld ip address
 ```
+
+## NSTypes
+
+### Tunnel (netns-tunnel)
+
+### Bridge (netns-bridge)
+
+### MACVLAN Bridge (netns-mvbr)
+Alternative to NSType tunnel. A [MACVLAN Bridge](https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#macvlan) allows you to create multiple interfaces with different Layer 2 (that is, Ethernet MAC) addresses on top of a single NIC.
+
+For netns-mvbr, `${MACVLAN_BRIDGE}` will be the bridge device (usually your physical NIC device).
+
+Note that any MACVLAN devices in other netnss will be able to communicate each other and the outside world but NOT the bridge device. If you want to enable communication with the root netns, you can add a MACVLAN device in the root netns and use that instead of the MACVLAN bridge device.
+
+### NAT (netns-nat)
 
 ## Resources
 

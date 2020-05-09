@@ -32,7 +32,7 @@ autoconfigure_nat() {
 	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
 		/bin/ip route add default via ${IPADDR_OUTSIDE%%/*}
 	fi
-	
+
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
@@ -44,12 +44,12 @@ autoconfigure_nat-access() {
 	if [ "$3" == "up" ]; then
 		#Accept related traffic
 		iptables -I INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-		
+
 	elif  [ "$3" == "down" ]; then
 		iptables -D INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	fi
-	
-	
+
+
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 autoconfigure() {
@@ -57,14 +57,19 @@ autoconfigure() {
 	local NSNAME=$2
 
 	echo "Starting autoconfigure for $NSTYPE ${NSNAME}"
-	DEVNAME_INSIDE=vn-${NSNAME}1
-	DEVNAME_OUTSIDE=vn-${NSNAME}0
-	
+	if [ "$NSTYPE" == "mvbr" ]; then
+		DEVNAME_INSIDE=mv-${NSNAME}0
+	else
+		DEVNAME_INSIDE=vn-${NSNAME}1
+		DEVNAME_OUTSIDE=vn-${NSNAME}0
+	fi
+
 	source /etc/default/netns
 	! source "/etc/default/netns-${NSNAME}"
 
-	if type -t autoconfigure_$NSTYPE >/dev/null ; then
-		autoconfigure_$NSTYPE "$@"
+	[[ $NSTYPE = "mvbr" ]] && SETUPTYPE="tunnel" || SETUPTYPE=$NSTYPE
+	if type -t autoconfigure_$SETUPTYPE >/dev/null ; then
+		autoconfigure_$SETUPTYPE "$@"
 	fi
 
 	echo "Autoconfiguration finished."
@@ -80,7 +85,7 @@ case "$1" in
 		display_usage
 		exit 0
 		;;
-	"tunnel"|"bridge"|"nat"|"nat-access")
+	"tunnel"|"bridge"|"mvbr"|"nat"|"nat-access")
 		autoconfigure "$@"
 		exit 0
 		;;
