@@ -67,6 +67,7 @@ autoconfigure() {
 
 	source /etc/default/netns
 	! source "/etc/default/netns-${NSTYPE}"
+	! source "/etc/default/netns-${NSNAME}" # for compatibility, see https://github.com/Jamesits/systemd-named-netns/pull/21
 	! source "/etc/default/netns-${NSTYPE}-${NSNAME}"
 
 	[[ $NSTYPE = "mvbr" ]] && SETUPTYPE="tunnel" || SETUPTYPE=$NSTYPE
