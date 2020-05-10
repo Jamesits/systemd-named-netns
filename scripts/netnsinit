@@ -85,8 +85,8 @@ autoconfigure() {
 	! source "/etc/default/netns-${NSTYPE}-${NSNAME}"
 
 	[[ $NSTYPE = "mvbr" ]] && SETUPTYPE="tunnel" || SETUPTYPE=$NSTYPE
-	if type -t autoconfigure_$SETUPTYPE_$UPDOWN_$INOUT >/dev/null ; then
-		autoconfigure_$SETUPTYPE_$UPDOWN_$INOUT "$@"
+	if type -t autoconfigure_${SETUPTYPE}_${UPDOWN}_${INOUT} >/dev/null ; then
+		autoconfigure_${SETUPTYPE}_${UPDOWN}_${INOUT} "$@"
 		echo "Autoconfiguration finished."
 	else
 		echo "No configuration required."
