@@ -16,7 +16,7 @@ PrivateNetwork=yes
 
 ExecStartPre=-/usr/bin/env ip netns delete %I
 
-ExecStart=/usr/bin/env ip netns add %I
+ExecStart=/usr/bin/flock --no-fork -- /var/run/netns.lock /usr/bin/env ip netns add %I
 ExecStart=/usr/bin/env umount /var/run/netns/%I
 ExecStart=/usr/bin/env mount --bind /proc/self/ns/net /var/run/netns/%I
 
