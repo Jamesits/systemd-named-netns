@@ -39,17 +39,23 @@ It creates a new netns. Use this if you want to customize everything by hand. Al
 
 It creates a new netns with NATed network access (like VMNet8). Use this if you want to get things quickly up and running without any network hassles. 
 
+Note:
+
+* The default configuration will only work for the first `netns-nat` instance. You need to change the IP addresses if you want 2 or more `netns-nat` instances running at the same time.
+* This will setup packet forwarding on your Linux kernel, making your host a router (this might cause security problems if set incorrectly)
+* If you want automatic iptables accept rules, set `NAT_ACCEPT_TRAFFIC=1`
+
 ![](doc/assets/netns-type-nat.png)
 
 ### Tunnel (`netns-tunnel@.service`)
 
-It creates a new netns with a pseudo wire to the host (like VMNet1). Use this if you want to communicate with the program inside the netns but don't want them to have Internet access, or if you want to assign routable IPs to a netns.
+It creates a new netns with a pseudo wire to the host (like VMNet1). Use this if you want to communicate with the program inside the netns but don't want them to have internet access, or if you want to assign routable IPs to a netns.
 
 ![](doc/assets/netns-type-tunnel.png)
 
 ### Bridge (`netns-bridge@.service`)
 
-It bridges the new netns to a Linux bridge. 
+It bridges the new netns to a Linux bridge. You need to set up the bridge first: see [wiki](https://github.com/Jamesits/systemd-named-netns/wiki/Bridging) if you are not sure what to do.
 
 ![](doc/assets/netns-type-bridge.png)
 
