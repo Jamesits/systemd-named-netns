@@ -24,10 +24,10 @@ autoconfigure_tunnel_up_outside() {
 	ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
 	! tc qdisc del dev ${DEVNAME_INSIDE} root
 	ip link set ${DEVNAME_OUTSIDE} up
-	ip link set ${DEVNAME_INSIDE} netns %I
+	ip link set ${DEVNAME_INSIDE} netns ${NSNAME}
 	# let this fail silently if IPADDR_OUTSIDE is undefined
 	! ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
-	ip -n %I link set ${DEVNAME_INSIDE} up
+	ip -n ${NSNAME} link set ${DEVNAME_INSIDE} up
 
 	if [ ! -z "$MACADDR" ]; then
 		ip link set ${DEVNAME_INSIDE} address ${MACADDR}
@@ -49,8 +49,8 @@ autoconfigure_tunnel_up_outside() {
 
 autoconfigure_tunnel_down_outside() {
 	# do not run in ExecStartPost to prevent forked dhclient from being killed
-	! kill -15 `cat /var/run/netns/dhclient-%i.pid`
-	! rm /var/run/netns/dhclient-%i.pid
+	! kill -15 `cat /var/run/netns/dhclient-${NSNAME}.pid`
+	! rm /var/run/netns/dhclient-${NSNAME}.pid
 	ip link delete ${DEVNAME_OUTSIDE}
 }
 
@@ -111,7 +111,7 @@ autoconfigure_mvbr_up_outside() {
 autoconfigure_mvbr_down_outside() {
 	autoconfigure_tunnel_down_outside
 
-	ip -n %I link delete ${DEVNAME_INSIDE}
+	ip -n ${NSNAME} link delete ${DEVNAME_INSIDE}
 }
 
 autoconfigure() {
