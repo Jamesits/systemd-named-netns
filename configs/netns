@@ -10,7 +10,7 @@
 # MACVLAN bridge device for netns-mvbr@.service
 #MACVLAN_BRIDGE=eth0
 
-# IP address of the interface outside
+# IP address of the interface in the global netns connecting to your new netns
 #IPADDR_OUTSIDE=192.168.1.1/24
 
 # If you need DHCP
@@ -20,17 +20,13 @@
 # can use your LAN's DHCP.
 #DHCPV4=1
 
-# If you need static IP
+# IP address of the interface in the new netns connecting to the global netns
 #IPADDR=192.168.1.2/24
+# The gateway
 #GATEWAY=192.168.1.1/24
 
 # If you need static MAC
 #MACADDR=00:11:22:33:44:55
 
-#NAT Accepting traffic back from the NetNS
-#By default, if the root NS contact a service
-#in the created NS, it won't get a response.
-#
-#Setting this setting to 1 add a iptable rule
-#to accept returning traffic
+# Set up the host to accept NATed traffic; see netns-nat file for detail
 #NAT_ACCEPT_TRAFFIC=1

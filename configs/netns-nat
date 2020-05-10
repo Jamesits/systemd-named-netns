@@ -1,0 +1,10 @@
+# The default values are here to make your first (experimental) netns-nat instance working.
+# If you are creating more netns-nas net namespaces, change the config for every new instance.
+IPADDR_OUTSIDE=100.64.0.1/30
+IPADDR=100.64.0.2/30
+GATEWAY=100.64.0.1/30
+
+# If you want the script to automatically do the following things:
+# 1. allow forwarding in kernel (your host machine will become a router)
+# 2. allow software inside the new netns to access the network and the host machine
+#NAT_ACCEPT_TRAFFIC=1
