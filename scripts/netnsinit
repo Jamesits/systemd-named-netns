@@ -57,15 +57,21 @@ autoconfigure() {
 	local NSNAME=$2
 
 	echo "Starting autoconfigure for $NSTYPE ${NSNAME}"
-	DEVNAME_INSIDE=vn-${NSNAME}1
-	DEVNAME_OUTSIDE=vn-${NSNAME}0
+  
+	if [ "$NSTYPE" == "mvbr" ]; then
+		DEVNAME_INSIDE=mv0
+	else
+		DEVNAME_INSIDE=vn-${NSNAME}1
+		DEVNAME_OUTSIDE=vn-${NSNAME}0
+	fi
 
 	source /etc/default/netns
 	! source "/etc/default/netns-${NSTYPE}"
 	! source "/etc/default/netns-${NSTYPE}-${NSNAME}"
 
-	if type -t autoconfigure_$NSTYPE >/dev/null ; then
-		autoconfigure_$NSTYPE "$@"
+	[[ $NSTYPE = "mvbr" ]] && SETUPTYPE="tunnel" || SETUPTYPE=$NSTYPE
+	if type -t autoconfigure_$SETUPTYPE >/dev/null ; then
+		autoconfigure_$SETUPTYPE "$@"
 	fi
 
 	echo "Autoconfiguration finished."
@@ -81,7 +87,7 @@ case "$1" in
 		display_usage
 		exit 0
 		;;
-	"tunnel"|"bridge"|"nat"|"nat-access")
+	"tunnel"|"bridge"|"mvbr"|"nat"|"nat-access")
 		autoconfigure "$@"
 		exit 0
 		;;

@@ -1,0 +1,34 @@
+[Unit]
+Description=Macvlan-bridging service for netns %I
+Documentation=https://github.com/Jamesits/systemd-named-netns
+
+BindsTo=netns@%i.service
+After=netns@%i.service
+Before=network.target network-online.target
+Conflicts=netns-tunnel@%i.service
+
+[Install]
+WantedBy=network-online.target
+WantedBy=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=DEVNAME_INSIDE=mv0
+Environment=DEVNAME_INSIDE_TMP_SUFFIX="-%I-tmp"
+EnvironmentFile=/etc/default/netns
+EnvironmentFile=-/etc/default/netns-%I
+
+ExecStartPre=-/usr/bin/env ip -n %I link delete ${DEVNAME_INSIDE}
+
+ExecStart=/usr/bin/env ip link add ${DEVNAME_INSIDE}${DEVNAME_INSIDE_TMP_SUFFIX} netns %I link ${MACVLAN_BRIDGE} type macvlan mode bridge
+ExecStart=/usr/bin/env ip -n %I link set dev ${DEVNAME_INSIDE}${DEVNAME_INSIDE_TMP_SUFFIX} name ${DEVNAME_INSIDE}
+ExecStart=-/usr/bin/env tc -n %I qdisc del dev ${DEVNAME_INSIDE} root
+ExecStart=/usr/bin/env ip -n %I link set ${DEVNAME_INSIDE} up
+
+# do not run in ExecStartPost to prevent forked dhclient from being killed
+ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit mvbr %I
+
+ExecStop=-/usr/bin/env kill -15 `cat /var/run/netns/dhclient-%i.pid`
+ExecStop=-/usr/bin/env rm /var/run/netns/dhclient-%i.pid
+ExecStop=-/usr/bin/env ip -n %I link delete ${DEVNAME_INSIDE}
