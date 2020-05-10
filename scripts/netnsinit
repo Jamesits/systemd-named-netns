@@ -87,9 +87,12 @@ autoconfigure() {
 	[[ $NSTYPE = "mvbr" ]] && SETUPTYPE="tunnel" || SETUPTYPE=$NSTYPE
 	if type -t autoconfigure_$SETUPTYPE_$UPDOWN_$INOUT >/dev/null ; then
 		autoconfigure_$SETUPTYPE_$UPDOWN_$INOUT "$@"
+		echo "Autoconfiguration finished."
+	else
+		echo "No configuration required."
 	fi
 
-	echo "Autoconfiguration finished."
+	return 0
 }
 
 if [ $# == 0 ]; then
