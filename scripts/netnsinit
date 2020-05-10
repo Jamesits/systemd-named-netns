@@ -8,9 +8,29 @@ display_usage() {
 	echo "Note: you may need root privileges for this."
 }
 
+autoconfigure_bridge_up_outside() {
+	autoconfigure_tunnel_up_outside
+
+	ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
+}
+
+autoconfigure_bridge_down_outside() {
+	autoconfigure_tunnel_down_outside
+}
+
 autoconfigure_tunnel_up_outside() {
+	! ip link delete ${DEVNAME_OUTSIDE}
+	! ip link delete ${DEVNAME_INSIDE}
+	ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
+	! tc qdisc del dev ${DEVNAME_INSIDE} root
+	ip link set ${DEVNAME_OUTSIDE} up
+	ip link set ${DEVNAME_INSIDE} netns %I
+	# let this fail silently if IPADDR_OUTSIDE is undefined
+	! ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
+	ip -n %I link set ${DEVNAME_INSIDE} up
+
 	if [ ! -z "$MACADDR" ]; then
-		/bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
+		ip link set ${DEVNAME_INSIDE} address ${MACADDR}
 	fi
 	if [ "${DHCPV4}" == "1" ]; then
 		! mkdir -p /var/run/netns
@@ -27,16 +47,25 @@ autoconfigure_tunnel_up_outside() {
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
+autoconfigure_tunnel_down_outside() {
+	# do not run in ExecStartPost to prevent forked dhclient from being killed
+	! kill -15 `cat /var/run/netns/dhclient-%i.pid`
+	! rm /var/run/netns/dhclient-%i.pid
+	ip link delete ${DEVNAME_OUTSIDE}
+}
+
 autoconfigure_nat_up_inside() {
 	# add default route if gateway undefined
 	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
-		/bin/ip route add default via ${IPADDR_OUTSIDE%%/*}
+		ip route add default via ${IPADDR_OUTSIDE%%/*}
 	fi
 
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
 autoconfigure_nat_up_outside() {
+	autoconfigure_tunnel_up_outside
+
 	# allow forwarding to make all these things work
 	sysctl net.ipv4.ip_forward=1
 	sysctl net.ipv6.conf.all.forwarding=1
@@ -62,31 +91,47 @@ autoconfigure_nat_down_outside() {
 	iptables -D FORWARD -i ${DEVNAME_OUTSIDE} -j ACCEPT
 	iptables -D FORWARD -o ${DEVNAME_OUTSIDE} -j ACCEPT
 	iptables -D INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+	autoconfigure_tunnel_down_outside
+}
+
+autoconfigure_mvbr_up_outside() {
+	DEVNAME_INSIDE=mv0
+	DEVNAME_INSIDE_TMP_SUFFIX="-${NSNAME}-tmp"
+
+	! ip -n ${NSNAME} link delete ${DEVNAME_INSIDE}
+	ip link add ${DEVNAME_INSIDE}${DEVNAME_INSIDE_TMP_SUFFIX} netns ${NSNAME} link ${MACVLAN_BRIDGE} type macvlan mode bridge
+	ip -n ${NSNAME} link set dev ${DEVNAME_INSIDE}${DEVNAME_INSIDE_TMP_SUFFIX} name ${DEVNAME_INSIDE}
+	! tc -n ${NSNAME} qdisc del dev ${DEVNAME_INSIDE} root
+	ip -n ${NSNAME} link set ${DEVNAME_INSIDE} up
+
+	autoconfigure_tunnel_up_outside
+}
+
+autoconfigure_mvbr_down_outside() {
+	autoconfigure_tunnel_down_outside
+
+	ip -n %I link delete ${DEVNAME_INSIDE}
 }
 
 autoconfigure() {
-	local NSTYPE=$1
-	local NSNAME=$2
-	local UPDOWN=$3
-	local INOUT=$4
+	NSTYPE=$1
+	NSNAME=$2
+	UPDOWN=$3
+	INOUT=$4
 
 	echo "Starting autoconfigure for ${NSTYPE} ${NSNAME}"
   
-	if [ "$NSTYPE" == "mvbr" ]; then
-		DEVNAME_INSIDE=mv0
-	else
-		DEVNAME_INSIDE=vn-${NSNAME}1
-		DEVNAME_OUTSIDE=vn-${NSNAME}0
-	fi
+	DEVNAME_INSIDE=vn-${NSNAME}1
+	DEVNAME_OUTSIDE=vn-${NSNAME}0
 
 	source /etc/default/netns
 	! source "/etc/default/netns-${NSTYPE}"
 	! source "/etc/default/netns-${NSNAME}" # for compatibility, see https://github.com/Jamesits/systemd-named-netns/pull/21
 	! source "/etc/default/netns-${NSTYPE}-${NSNAME}"
 
-	[[ $NSTYPE = "mvbr" ]] && SETUPTYPE="tunnel" || SETUPTYPE=$NSTYPE
-	if type -t autoconfigure_${SETUPTYPE}_${INOUT}_${UPDOWN} >/dev/null ; then
-		autoconfigure_${SETUPTYPE}_${INOUT}_${UPDOWN} "$@"
+	if type -t autoconfigure_${NSTYPE}_${INOUT}_${UPDOWN} >/dev/null ; then
+		autoconfigure_${NSTYPE}_${INOUT}_${UPDOWN} "$@"
 		echo "Autoconfiguration finished."
 	else
 		echo "No configuration required."

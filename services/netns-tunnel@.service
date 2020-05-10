@@ -14,29 +14,9 @@ WantedBy=multi-user.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-Environment=DEVNAME_OUTSIDE=vn-%I0
-Environment=DEVNAME_INSIDE=vn-%I1
-EnvironmentFile=/etc/default/netns
-EnvironmentFile=-/etc/default/netns-%I
 
-ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}
-ExecStartPre=-/usr/bin/env ip link delete ${DEVNAME_INSIDE}
-
-ExecStart=/usr/bin/env ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
-ExecStart=-/usr/bin/env tc qdisc del dev ${DEVNAME_INSIDE} root
-ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} up
-ExecStart=/usr/bin/env ip link set ${DEVNAME_INSIDE} netns %I
-# let this fail silently if IPADDR_OUTSIDE is undefined
-ExecStart=-/usr/bin/env ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
-ExecStart=/usr/bin/env ip -n %I link set ${DEVNAME_INSIDE} up
-
-# do not run in ExecStartPost to prevent forked dhclient from being killed
 ExecStart=/usr/bin/env netnsinit tunnel %I up outside
 ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit tunnel %I up inside
 
 ExecStop=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit tunnel %I down inside
 ExecStop=/usr/bin/env netnsinit tunnel %I down outside
-
-ExecStop=-/usr/bin/env kill -15 `cat /var/run/netns/dhclient-%i.pid`
-ExecStop=-/usr/bin/env rm /var/run/netns/dhclient-%i.pid
-ExecStop=/usr/bin/env ip link delete ${DEVNAME_OUTSIDE}

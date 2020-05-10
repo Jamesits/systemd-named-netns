@@ -2,8 +2,8 @@
 Description=Bridging service for netns %I
 Documentation=https://github.com/Jamesits/systemd-named-netns
 
-BindsTo=netns-tunnel@%i.service
-After=netns-tunnel@%i.service
+BindsTo=netns@%i.service
+After=netns@%i.service
 Before=network.target network-online.target
 Conflicts=netns-nat@%i.service netns-mvbr@%i.service
 
@@ -14,12 +14,6 @@ WantedBy=multi-user.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-Environment=DEVNAME_OUTSIDE=vn-%I0
-Environment=DEVNAME_INSIDE=vn-%I1
-EnvironmentFile=/etc/default/netns
-EnvironmentFile=-/etc/default/netns-%I
-
-ExecStart=/usr/bin/env ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
 
 ExecStart=/usr/bin/env netnsinit bridge %I up outside
 ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit bridge %I up inside
