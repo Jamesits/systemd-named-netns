@@ -27,31 +27,39 @@ systemctl start netns-nat@helloworld
 chnetns helloworld ip address
 ```
 
-## NSTypes
+## NS Types
 
 ### Basic (`netns@.service`)
 
 It creates a new netns. Use this if you want to customize everything by hand. All other types depend on this. 
 
+![](doc/assets/netns-type-raw.png)
+
 ### NAT (`netns-nat@.service`)
 
 It creates a new netns with NATed network access (like VMNet8). Use this if you want to get things quickly up and running without any network hassles. 
+
+![](doc/assets/netns-type-nat.png)
 
 ### Tunnel (`netns-tunnel@.service`)
 
 It creates a new netns with a pseudo wire to the host (like VMNet1). Use this if you want to communicate with the program inside the netns but don't want them to have Internet access, or if you want to assign routable IPs to a netns.
 
+![](doc/assets/netns-type-tunnel.png)
+
 ### Bridge (`netns-bridge@.service`)
 
 It bridges the new netns to a Linux bridge. 
 
+![](doc/assets/netns-type-bridge.png)
+
 ### MACVLAN Bridge (`netns-mvbr@.service`)
 
-Alternative to NSType tunnel. A [MACVLAN Bridge](https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#macvlan) allows you to create multiple interfaces with different Layer 2 (that is, Ethernet MAC) addresses on top of a single NIC.
+Alternative to NSType bridge. A [MACVLAN Bridge](https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking/#macvlan) allows you to create multiple interfaces with different Layer 2 (that is, Ethernet MAC) addresses on top of a single NIC. MACVLAN is a bridge without an explicit bridge device. 
 
 For netns-mvbr, `${MACVLAN_BRIDGE}` will be the bridge device (usually your physical NIC device).
 
-Note that any MACVLAN devices in other netnss will be able to communicate each other and the outside world but NOT the bridge device. If you want to enable communication with the root netns, you can add a MACVLAN device in the root netns and use that instead of the MACVLAN bridge device.
+Note that any MACVLAN devices in other netns's will be able to communicate each other and the outside world but NOT the bridge device. If you want to enable communication with the root netns, you can add a MACVLAN device in the root netns and use that instead of the MACVLAN bridge device.
 
 ## Resources
 
