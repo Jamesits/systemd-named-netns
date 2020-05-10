@@ -4,11 +4,11 @@ set -e
 
 display_usage() {
 	echo "Auto configuration for systemd-named-netns."
-	echo -e "\nUsage:\n\t$0 network-type ns-name [optional params]\n"
+	echo -e "\nUsage:\n\t$0 network-type ns-name [optional params] [up|down] [inside|outside]\n"
 	echo "Note: you may need root privileges for this."
 }
 
-autoconfigure_tunnel() {
+autoconfigure_tunnel_up_outside() {
 	if [ ! -z "$MACADDR" ]; then
 		/bin/ip link set ${DEVNAME_INSIDE} address ${MACADDR}
 	fi
@@ -23,12 +23,11 @@ autoconfigure_tunnel() {
 			/bin/ip route add default via ${GATEWAY%%/*}
 		fi
 	fi
+	
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
-# this is run for net type; inside netns
-autoconfigure_nat() {
-
+autoconfigure_nat_up_inside() {
 	# add default route if gateway undefined
 	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
 		/bin/ip route add default via ${IPADDR_OUTSIDE%%/*}
@@ -37,38 +36,39 @@ autoconfigure_nat() {
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
-# this is run for nat type; outside netns
-autoconfigure_nat-access() {
-	if [ "$3" == "up" ]; then
-		# allow forwarding to make all these things work
-		sysctl net.ipv4.ip_forward=1
-		sysctl net.ipv6.conf.all.forwarding=1
+autoconfigure_nat_up_outside() {
+	# allow forwarding to make all these things work
+	sysctl net.ipv4.ip_forward=1
+	sysctl net.ipv6.conf.all.forwarding=1
 
-		# set up NAT
-		# in POSTROUTING we cannot select via source interface, so we use source ip address here
-		iptables -t nat -A POSTROUTING -s ${IPADDR_OUTSIDE} -j MASQUERADE
+	# set up NAT
+	# in POSTROUTING we cannot select via source interface, so we use source ip address here
+	iptables -t nat -A POSTROUTING -s ${IPADDR_OUTSIDE} -j MASQUERADE
 
-		if [ "${NAT_ACCEPT_TRAFFIC}" == "1" ]; then
-			iptables -A FORWARD -i ${DEVNAME_OUTSIDE} -j ACCEPT
-			iptables -A FORWARD -o ${DEVNAME_OUTSIDE} -j ACCEPT
-			#Accept related traffic
-			iptables -I INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-		fi
-	elif  [ "$3" == "down" ]; then
-		# remove NAT
-		iptables -t nat -D POSTROUTING -s ${IPADDR_OUTSIDE} -j MASQUERADE
-
-		iptables -D FORWARD -i ${DEVNAME_OUTSIDE} -j ACCEPT
-		iptables -D FORWARD -o ${DEVNAME_OUTSIDE} -j ACCEPT
-		iptables -D INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+	if [ "${NAT_ACCEPT_TRAFFIC}" == "1" ]; then
+		iptables -A FORWARD -i ${DEVNAME_OUTSIDE} -j ACCEPT
+		iptables -A FORWARD -o ${DEVNAME_OUTSIDE} -j ACCEPT
+		#Accept related traffic
+		iptables -I INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	fi
 
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
+autoconfigure_nat_down_outside() {
+	# remove NAT
+	iptables -t nat -D POSTROUTING -s ${IPADDR_OUTSIDE} -j MASQUERADE
+
+	iptables -D FORWARD -i ${DEVNAME_OUTSIDE} -j ACCEPT
+	iptables -D FORWARD -o ${DEVNAME_OUTSIDE} -j ACCEPT
+	iptables -D INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+}
+
 autoconfigure() {
 	local NSTYPE=$1
 	local NSNAME=$2
+	local UPDOWN=$3
+	local INOUT=$4
 
 	echo "Starting autoconfigure for ${NSTYPE} ${NSNAME}"
   
@@ -85,8 +85,8 @@ autoconfigure() {
 	! source "/etc/default/netns-${NSTYPE}-${NSNAME}"
 
 	[[ $NSTYPE = "mvbr" ]] && SETUPTYPE="tunnel" || SETUPTYPE=$NSTYPE
-	if type -t autoconfigure_$SETUPTYPE >/dev/null ; then
-		autoconfigure_$SETUPTYPE "$@"
+	if type -t autoconfigure_$SETUPTYPE_$UPDOWN_$INOUT >/dev/null ; then
+		autoconfigure_$SETUPTYPE_$UPDOWN_$INOUT "$@"
 	fi
 
 	echo "Autoconfiguration finished."
@@ -102,7 +102,7 @@ case "$1" in
 		display_usage
 		exit 0
 		;;
-	"tunnel"|"bridge"|"mvbr"|"nat"|"nat-access")
+	"raw"|"tunnel"|"bridge"|"mvbr"|"nat")
 		autoconfigure "$@"
 		exit 0
 		;;

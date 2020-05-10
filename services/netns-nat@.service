@@ -19,7 +19,8 @@ Environment=DEVNAME_INSIDE=vn-%I1
 EnvironmentFile=/etc/default/netns
 EnvironmentFile=-/etc/default/netns-%I
 
-ExecStart=/usr/bin/env netnsinit nat-access %I up
-ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit nat %I
+ExecStart=/usr/bin/env netnsinit nat %I up outside
+ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit nat %I up inside
 
-ExecStop=/usr/bin/env netnsinit nat-access %I down
+ExecStop=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit nat %I down inside
+ExecStop=/usr/bin/env netnsinit nat %I down outside

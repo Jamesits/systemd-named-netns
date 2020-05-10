@@ -5,6 +5,7 @@ Documentation=https://github.com/Jamesits/systemd-named-netns
 BindsTo=netns@%i.service
 After=netns@%i.service
 Before=network.target network-online.target
+Conflicts=netns-mvbr@%i.service
 
 [Install]
 WantedBy=network-online.target
@@ -30,7 +31,11 @@ ExecStart=-/usr/bin/env ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
 ExecStart=/usr/bin/env ip -n %I link set ${DEVNAME_INSIDE} up
 
 # do not run in ExecStartPost to prevent forked dhclient from being killed
-ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit tunnel %I
+ExecStart=/usr/bin/env netnsinit tunnel %I up outside
+ExecStart=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit tunnel %I up inside
+
+ExecStop=/usr/bin/env ip netns exec %I /usr/bin/env netnsinit tunnel %I down inside
+ExecStop=/usr/bin/env netnsinit tunnel %I down outside
 
 ExecStop=-/usr/bin/env kill -15 `cat /var/run/netns/dhclient-%i.pid`
 ExecStop=-/usr/bin/env rm /var/run/netns/dhclient-%i.pid
