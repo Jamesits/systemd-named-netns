@@ -8,59 +8,77 @@ display_usage() {
 	echo "Note: you may need root privileges for this."
 }
 
+############## configure triggers ###############
+
+autoconfigure_tunnel_up_outside() {
+	# precaution
+	! ip link delete ${DEVNAME_OUTSIDE}
+	! ip link delete ${DEVNAME_INSIDE}
+
+	# setup pseudo wire
+	ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
+	! tc qdisc del dev ${DEVNAME_INSIDE} root
+	if [ ! -z "$MACADDR" ]; then
+		ip link set ${DEVNAME_INSIDE} address ${MACADDR}
+	fi
+	ip link set ${DEVNAME_INSIDE} netns ${NSNAME}
+	ip link set ${DEVNAME_OUTSIDE} up
+	ip -n ${NSNAME} link set ${DEVNAME_INSIDE} up
+
+	# add ipv4 address at global end
+	# let this fail silently if IPADDR_OUTSIDE is undefined
+	! ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
+	
+	return 0 # additional precation against "set -e" in case of future mods of this function
+}
+
+autoconfigure_tunnel_up_inside() {
+	# add ipv4 address at netns end
+	if [ ! -z "${IPADDR}" ]; then
+		ip address add ${IPADDR} dev ${DEVNAME_INSIDE}
+	fi
+
+	# setup default route
+	if [ ! -z "${GATEWAY}" ]; then
+		ip route add default via ${GATEWAY%%/*} onlink
+	fi
+
+	# if DHCP is configured
+	if [ "${DHCPV4}" == "1" ]; then
+		! mkdir -p /var/run/netns
+		dhclient -v -i ${DEVNAME_INSIDE} -nw -pf /var/run/netns/dhclient-${NSNAME}.pid
+	fi
+
+	return 0
+}
+
+autoconfigure_tunnel_down_inside() {
+	# kill DHCP client
+	# do not run in ExecStartPost to prevent forked dhclient from being killed
+	! kill -15 `cat /var/run/netns/dhclient-${NSNAME}.pid`
+	! rm /var/run/netns/dhclient-${NSNAME}.pid
+}
+
+autoconfigure_tunnel_down_outside() {
+	ip link delete ${DEVNAME_OUTSIDE}
+}
+
 autoconfigure_bridge_up_outside() {
 	autoconfigure_tunnel_up_outside
 
 	ip link set ${DEVNAME_OUTSIDE} master ${BRIDGE}
 }
 
+autoconfigure_bridge_up_inside() {
+	autoconfigure_tunnel_up_inside
+}
+
+autoconfigure_bridge_down_inside() {
+	autoconfigure_tunnel_down_inside
+}
+
 autoconfigure_bridge_down_outside() {
 	autoconfigure_tunnel_down_outside
-}
-
-autoconfigure_tunnel_up_outside() {
-	! ip link delete ${DEVNAME_OUTSIDE}
-	! ip link delete ${DEVNAME_INSIDE}
-	ip link add ${DEVNAME_OUTSIDE} type veth peer name ${DEVNAME_INSIDE}
-	! tc qdisc del dev ${DEVNAME_INSIDE} root
-	ip link set ${DEVNAME_OUTSIDE} up
-	ip link set ${DEVNAME_INSIDE} netns ${NSNAME}
-	# let this fail silently if IPADDR_OUTSIDE is undefined
-	! ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
-	ip -n ${NSNAME} link set ${DEVNAME_INSIDE} up
-
-	if [ ! -z "$MACADDR" ]; then
-		ip link set ${DEVNAME_INSIDE} address ${MACADDR}
-	fi
-	if [ "${DHCPV4}" == "1" ]; then
-		! mkdir -p /var/run/netns
-		dhclient -v -i ${DEVNAME_INSIDE} -nw -pf /var/run/netns/dhclient-${NSNAME}.pid
-	else
-		if [ ! -z "${IPADDR}" ]; then
-			/bin/ip address add ${IPADDR} dev ${DEVNAME_INSIDE}
-		fi
-		if [ ! -z "${GATEWAY}" ]; then
-			/bin/ip route add default via ${GATEWAY%%/*}
-		fi
-	fi
-	
-	return 0 # additional precation against "set -e" in case of future mods of this function
-}
-
-autoconfigure_tunnel_down_outside() {
-	# do not run in ExecStartPost to prevent forked dhclient from being killed
-	! kill -15 `cat /var/run/netns/dhclient-${NSNAME}.pid`
-	! rm /var/run/netns/dhclient-${NSNAME}.pid
-	ip link delete ${DEVNAME_OUTSIDE}
-}
-
-autoconfigure_nat_up_inside() {
-	# add default route if gateway undefined
-	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
-		ip route add default via ${IPADDR_OUTSIDE%%/*}
-	fi
-
-	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
 autoconfigure_nat_up_outside() {
@@ -84,6 +102,23 @@ autoconfigure_nat_up_outside() {
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
+autoconfigure_nat_up_inside() {
+	autoconfigure_tunnel_up_inside
+	
+	# add default route if gateway undefined
+	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
+		ip route add default via ${IPADDR_OUTSIDE%%/*}
+	fi
+
+	return 0 # additional precation against "set -e" in case of future mods of this function
+}
+
+autoconfigure_nat_down_inside() {
+	autoconfigure_tunnel_down_inside
+
+	return 0
+}
+
 autoconfigure_nat_down_outside() {
 	# remove NAT
 	iptables -t nat -D POSTROUTING -s ${IPADDR_OUTSIDE} -j MASQUERADE
@@ -93,6 +128,8 @@ autoconfigure_nat_down_outside() {
 	iptables -D INPUT -i ${DEVNAME_OUTSIDE} -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
 	autoconfigure_tunnel_down_outside
+
+	return 0
 }
 
 autoconfigure_mvbr_up_outside() {
