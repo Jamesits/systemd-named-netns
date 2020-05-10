@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-
+set -x
 display_usage() {
 	echo "Auto configuration for systemd-named-netns."
 	echo -e "\nUsage:\n\t$0 network-type ns-name [optional params] [up|down] [inside|outside]\n"
@@ -26,9 +26,10 @@ autoconfigure_tunnel_up_outside() {
 	ip -n ${NSNAME} link set ${DEVNAME_INSIDE} up
 
 	# add ipv4 address at global end
-	# let this fail silently if IPADDR_OUTSIDE is undefined
-	! ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
-	
+	if [ ! -z "${IPADDR_OUTSIDE}" ]; then
+		ip address add ${IPADDR_OUTSIDE} dev ${DEVNAME_OUTSIDE}
+	fi
+
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
@@ -40,7 +41,7 @@ autoconfigure_tunnel_up_inside() {
 
 	# setup default route
 	if [ ! -z "${GATEWAY}" ]; then
-		ip route add default via ${GATEWAY%%/*} onlink
+		ip route add default via ${GATEWAY%%/*} dev ${DEVNAME_INSIDE} onlink
 	fi
 
 	# if DHCP is configured
@@ -107,7 +108,7 @@ autoconfigure_nat_up_inside() {
 	
 	# add default route if gateway undefined
 	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
-		ip route add default via ${IPADDR_OUTSIDE%%/*}
+		GATEWAY="${IPADDR_OUTSIDE}"
 	fi
 
 	return 0 # additional precation against "set -e" in case of future mods of this function
@@ -167,8 +168,8 @@ autoconfigure() {
 	! source "/etc/default/netns-${NSNAME}" # for compatibility, see https://github.com/Jamesits/systemd-named-netns/pull/21
 	! source "/etc/default/netns-${NSTYPE}-${NSNAME}"
 
-	if type -t autoconfigure_${NSTYPE}_${INOUT}_${UPDOWN} >/dev/null ; then
-		autoconfigure_${NSTYPE}_${INOUT}_${UPDOWN} "$@"
+	if type -t autoconfigure_${NSTYPE}_${UPDOWN}_${INOUT} >/dev/null ; then
+		autoconfigure_${NSTYPE}_${UPDOWN}_${INOUT} "$@"
 		echo "Autoconfiguration finished."
 	else
 		echo "No configuration required."
