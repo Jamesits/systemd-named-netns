@@ -7,6 +7,8 @@ After=netns@%i.service
 Before=network.target network-online.target
 Conflicts=netns-nat@%i.service netns-bridge@%i.service netns-tunnel@%i.service
 
+JoinsNamespaceOf=netns@%I.service
+
 [Install]
 WantedBy=network-online.target
 WantedBy=multi-user.target
