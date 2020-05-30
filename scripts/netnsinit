@@ -135,7 +135,7 @@ autoconfigure_nat_down_outside() {
 
 autoconfigure_mvbr_up_outside() {
 	DEVNAME_INSIDE=mv0
-	DEVNAME_INSIDE_TMP_SUFFIX="-${NSNAME}-tmp"
+	DEVNAME_INSIDE_TMP_SUFFIX="-${NSNAME}"
 
 	! ip -n ${NSNAME} link delete ${DEVNAME_INSIDE}
 	ip link add ${DEVNAME_INSIDE}${DEVNAME_INSIDE_TMP_SUFFIX} netns ${NSNAME} link ${MACVLAN_BRIDGE} type macvlan mode bridge
