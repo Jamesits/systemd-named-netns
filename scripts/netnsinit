@@ -107,7 +107,7 @@ autoconfigure_nat_up_inside() {
 	autoconfigure_tunnel_up_inside
 
 	# add default route if gateway undefined
-	if [ -z "${GATEWAY}" -a -n "${IPADDR_OUTSIDE}" ]; then
+	if [ -z "${GATEWAY}" ] && [ -n "${IPADDR_OUTSIDE}" ]; then
 		GATEWAY="${IPADDR_OUTSIDE}"
 	fi
 
