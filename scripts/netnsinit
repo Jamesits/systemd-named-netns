@@ -18,7 +18,7 @@ autoconfigure_tunnel_up_outside() {
 	# setup pseudo wire
 	ip link add "${DEVNAME_OUTSIDE}" type veth peer name "${DEVNAME_INSIDE}"
 	! tc qdisc del dev "${DEVNAME_INSIDE}" root
-	if [ ! -z "$MACADDR" ]; then
+	if [ -n "$MACADDR" ]; then
 		ip link set "${DEVNAME_INSIDE}" address "${MACADDR}"
 	fi
 	ip link set "${DEVNAME_INSIDE}" netns "${NSNAME}"
@@ -26,7 +26,7 @@ autoconfigure_tunnel_up_outside() {
 	ip -n "${NSNAME}" link set "${DEVNAME_INSIDE}" up
 
 	# add ipv4 address at global end
-	if [ ! -z "${IPADDR_OUTSIDE}" ]; then
+	if [ -n "${IPADDR_OUTSIDE}" ]; then
 		ip address add "${IPADDR_OUTSIDE}" dev "${DEVNAME_OUTSIDE}"
 	fi
 
@@ -35,12 +35,12 @@ autoconfigure_tunnel_up_outside() {
 
 autoconfigure_tunnel_up_inside() {
 	# add ipv4 address at netns end
-	if [ ! -z "${IPADDR}" ]; then
+	if [ -n "${IPADDR}" ]; then
 		ip address add "${IPADDR}" dev "${DEVNAME_INSIDE}"
 	fi
 
 	# setup default route
-	if [ ! -z "${GATEWAY}" ]; then
+	if [ -n "${GATEWAY}" ]; then
 		ip route add default via "${GATEWAY%%/*}" dev "${DEVNAME_INSIDE}" onlink
 	fi
 
