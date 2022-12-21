@@ -56,7 +56,7 @@ autoconfigure_tunnel_up_inside() {
 autoconfigure_tunnel_down_inside() {
 	# kill DHCP client
 	# do not run in ExecStartPost to prevent forked dhclient from being killed
-	! kill -15 "`cat /var/run/netns/dhclient-"${NSNAME}".pid`"
+	! kill -15 "$(cat /var/run/netns/dhclient-"${NSNAME}".pid)"
 	! rm "/var/run/netns/dhclient-${NSNAME}.pid"
 }
 
