@@ -21,7 +21,7 @@ autoconfigure_tunnel_up_outside() {
 	if [ -n "$MACADDR" ]; then
 		ip link set "${DEVNAME_INSIDE}" address "${MACADDR}"
 	fi
-	ip link set "${DEVNAME_INSIDE}" netns "${NSNAME}"
+	! ip link set "${DEVNAME_INSIDE}" netns "${NSNAME}" # apparently the link may already have the netns set
 	ip link set "${DEVNAME_OUTSIDE}" up
 	ip -n "${NSNAME}" link set "${DEVNAME_INSIDE}" up
 
