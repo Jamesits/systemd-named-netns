@@ -152,6 +152,22 @@ autoconfigure_mvbr_down_outside() {
 	ip -n "${NSNAME}" link delete ${DEVNAME_INSIDE}
 }
 
+autoconfigure_mvbr_up_inside() {
+	DEVNAME_INSIDE=mv0
+
+	autoconfigure_tunnel_up_inside
+
+	return 0
+}
+
+autoconfigure_mvbr_down_inside() {
+	DEVNAME_INSIDE=mv0
+
+	autoconfigure_tunnel_down_inside
+
+	return 0
+}
+
 autoconfigure() {
 	NSTYPE=$1
 	NSNAME=$2
