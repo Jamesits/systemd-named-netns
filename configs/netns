@@ -12,6 +12,7 @@
 
 # IP address of the interface in the global netns connecting to your new netns
 #IPADDR_OUTSIDE=192.168.1.1/24
+#IP6ADDR_OUTSIDE=2a00::1/126
 
 # If you need DHCP
 # In order for this to function for netns-tunnel and
@@ -22,8 +23,10 @@
 
 # IP address of the interface in the new netns connecting to the global netns
 #IPADDR=192.168.1.2/24
+#IP6ADDR=2a00::2/126
 # The gateway
 #GATEWAY=192.168.1.1/24
+#GATEWAY6=2a00::1
 
 # If you need static MAC
 #MACADDR=00:11:22:33:44:55

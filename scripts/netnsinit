@@ -30,6 +30,11 @@ autoconfigure_tunnel_up_outside() {
 		ip address add "${IPADDR_OUTSIDE}" dev "${DEVNAME_OUTSIDE}"
 	fi
 
+	# add ipv6 address at global end
+	if [ -n "${IP6ADDR_OUTSIDE}" ]; then
+		ip -6 address add "${IP6ADDR_OUTSIDE}" dev "${DEVNAME_OUTSIDE}"
+	fi
+
 	return 0 # additional precation against "set -e" in case of future mods of this function
 }
 
@@ -39,9 +44,19 @@ autoconfigure_tunnel_up_inside() {
 		ip address add "${IPADDR}" dev "${DEVNAME_INSIDE}"
 	fi
 
+	# add ipv6 address at netns end
+	if [ -n "${IP6ADDR}" ]; then
+		ip -6 address add "${IP6ADDR}" dev "${DEVNAME_INSIDE}"
+	fi
+
 	# setup default route
 	if [ -n "${GATEWAY}" ]; then
 		ip route add default via "${GATEWAY%%/*}" dev "${DEVNAME_INSIDE}" onlink
+	fi
+
+	# setup default route
+	if [ -n "${GATEWAY6}" ]; then
+		ip -6 route add default via "${GATEWAY6%%/*}" dev "${DEVNAME_INSIDE}" onlink
 	fi
 
 	# if DHCP is configured
